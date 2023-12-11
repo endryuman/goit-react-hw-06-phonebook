@@ -1,5 +1,16 @@
+import { setFilteredContacts } from '../../redux/filterSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './Filter.module.css';
-export const Filter = ({ value, onChange }) => {
+import { getFilter } from '../../redux/selectors';
+
+export const Filter = () => {
+  const filterQuery = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  const showFilteredContacts = e => {
+    dispatch(setFilteredContacts(e.target.value));
+  };
+
   return (
     <div className={styles.filterWrapper}>
       <label htmlFor="filter">Find contacts by name</label>
@@ -7,8 +18,8 @@ export const Filter = ({ value, onChange }) => {
         id="filter"
         type="text"
         name="filter"
-        value={value}
-        onChange={onChange}
+        value={filterQuery}
+        onChange={showFilteredContacts}
       />
     </div>
   );

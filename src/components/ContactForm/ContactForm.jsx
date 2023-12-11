@@ -1,48 +1,44 @@
 import styles from './ContactForm.module.css';
-import { useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice';
+import { nanoid } from '@reduxjs/toolkit';
+import { getContacts } from '../../redux/selectors';
 
-export const ContactForm = ({ addContact }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const formRef = useRef(null);
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
-  const handelSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    addContact({
-      name,
-      number,
-    });
-    if (formRef.current) {
-      formRef.current.reset();
-      setName('');
-      setNumber('');
+
+    const newContactName = e.target.elements.name.value;
+
+    const isContactExist =
+      contacts &&
+      contacts.some(
+        contact => contact.name.toLowerCase() === newContactName.toLowerCase()
+      );
+
+    if (isContactExist) {
+      alert('Contact with this name already exist!');
+      e.target.reset();
+      return;
     }
-  };
-  const handleChange = ({ target: { value, name } }) => {
-    if (name === 'name') setName(value);
-    if (name === 'number') setNumber(value);
+    const newContact = {
+      id: nanoid(),
+      name: e.target.elements.name.value,
+      number: e.target.elements.number.value,
+    };
+    dispatch(addContact(newContact));
+    e.target.reset();
   };
 
   return (
-    <form ref={formRef} className={styles.contactForm} onSubmit={handelSubmit}>
+    <form className={styles.contactForm} onSubmit={handleSubmit}>
       <label htmlFor="name">Name</label>
-      <input
-        id="name"
-        type="text"
-        name="name"
-        value={name}
-        onChange={handleChange}
-        required
-      />
+      <input id="name" type="text" name="name" required />
       <label htmlFor="number">Number</label>
-      <input
-        id="number"
-        type="tel"
-        name="number"
-        value={number}
-        onChange={handleChange}
-        required
-      />
+      <input id="number" type="tel" name="number" required />
       <button type="submit">Add contact</button>
     </form>
   );
